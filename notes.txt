@@ -1,0 +1,20 @@
+##Intro to computer vision
+
+Getting info from images/video, similar to how humans will recongize people
+
+Images are falt, we can use depth and make judgements of size based on prior knowledge
+	How to code this prior knowledge??
+
+Challenges in CV
+
+	-High-dimensional
+	-Noisy
+	-Signal variation
+	-Requires local and global reasons
+
+Inverse Problems
+
+y = x^2 , there is not one inverse problem. x could be negative??, no way of knowing what the "true answer is"
+
+
+

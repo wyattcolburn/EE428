@@ -1,6 +1,5 @@
 import matplotlib
 matplotlib.use('gtk3agg')  # Use gtk3agg for GNOME
-
 import skimage as ski
 import numpy as np
 from matplotlib import pyplot as plt
@@ -8,11 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import os
 import imageio
-import cv2
 from skimage.measure import label, regionprops
 from skimage.color import label2rgb
-from skimage.morphology import closing, square
-from skimage.segmentation import clear_border
 def extract_objects_from_binary(binary):
     # Label the connected regions in the binary image
     labels = label(binary)
@@ -95,8 +91,6 @@ def main():
     first_frame_gray = ski.color.rgb2gray(first_frame)
 
     difference = np.abs(first_frame_gray - background_frame)
-    print(difference.min())
-    print(difference.max())
     
     plt.imshow(difference, cmap='gray')
     plt.axis('off')
@@ -104,7 +98,6 @@ def main():
     # otsu method splits an image into two classes: foreground and background. Want to maximize the variance between classes. Split greyscale image into a binary image, so white is 1 and black is 0. Thats where the threshold comes into affect, values below threshold are 0, above 1. 
 
     threshold = ski.filters.threshold_otsu(difference) # image, bins, histogram
-    print('threshold is ', threshold)
     binary = difference >= threshold #  example from link below
     plt.imshow(binary, cmap='binary')
     plt.axis('off')
@@ -112,21 +105,6 @@ def main():
 #  https://scikit-image.org/docs/stable/api/skimage.filters.html#skimage.filters.threshold_otsu
     
 
-# remove artifacts connected to image border
-    # Display the colored mask
-    threshold_list= [] 
-    for filename in sorted(os.listdir('frames/')):
-        current_frame = imageio.v2.imread(f'frames/{filename}')
-        gray_image = ski.color.rgb2gray(current_frame)
-        difference = np.abs(gray_image - background_frame)
-        #threshold = ski.filters.threshold_otsu(difference)
-        binary = difference >= threshold
-        objects = extract_objects_from_binary(binary)
-        frame = draw_boxes(objects, current_frame)
-        threshold_list.append(frame)
-
-    video_mask = np.array(threshold_list)
-    show_video(video_mask, 'binary masks')
     
     prof_list= [] 
     for filename in sorted(os.listdir('frames/')):
@@ -140,6 +118,29 @@ def main():
 
     prof_mask = np.array(prof_list)
     show_video(prof_mask, 'Using Professor Func to Draw Boxes')
+def test():
+    
+    image_list = []
+    for filename in sorted(os.listdir('frames/')):
+        image = imageio.v2.imread(f'frames/{filename}')
+        gray_image = ski.color.rgb2gray(image) #this turns each pixel into a float 0-1
+        image_list.append(gray_image)
+    video = np.array(image_list)
+
+    background_frame = np.mean(video, axis=0)  # not sure why axis 0
+
+    prof_list = []
+    for filename in sorted(os.listdir('frames/')):
+        current_frame = imageio.v2.imread(f'frames/{filename}')
+        gray_image = ski.color.rgb2gray(current_frame)
+        difference = np.abs(gray_image - background_frame)
+        threshold = ski.filters.threshold_otsu(difference)
+        binary = difference >= threshold
+        frame = draw_bounding_boxes(current_frame, binary)
+        prof_list.append(frame)
+
+    prof_mask = np.array(prof_list)
+    show_video(prof_mask, 'Using Professor Func to Draw Boxes')
 
 if __name__ == "__main__":
-    main()
+    test()

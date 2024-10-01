@@ -47,29 +47,15 @@ def show_video(images,title):
             obj.set_data(image)
         plt.pause(.01)
         plt.draw()
-def display_video(video):
-
-# Convert NumPy array to the right format for OpenCV (uint8)
-    grayscale_frames = (video* 255).astype(np.uint8) #float -> uint8_t 
-
-# Display the frames as a video using OpenCV
-    for frame in grayscale_frames:
-        cv2.imshow('Video', frame)
-        if cv2.waitKey(50) & 0xFF == ord('q'):  # 50 millis sec per frame, 20 frames per second 
-            break
-
-    cv2.destroyAllWindows()
-   
-def boxes_prof(input_frame, binary_frame):
-
-    labels = ski.measure.label(binary_frame)
+def draw_bounding_boxes(image,fg):
+    labels = ski.measure.label(fg)
     regions = ski.measure.regionprops(labels)
     for props in regions:
         minr, minc, maxr, maxc = props.bbox
-        bx = (minc, maxc, maxc, minc, minc)
-        by = (minr, minr, maxr, maxr, minr)
-        plt.plot(bx, by, '-b', linewidth=2.5)
-
+        rr,cc = ski.draw.rectangle_perimeter((minr,minc),(maxr,maxc),
+            shape=image.shape)
+        image[rr,cc] = 1
+    return image
 def draw_boxes(objects, first_frame):
     for obj in objects:
         # Extract the bounding box
@@ -120,19 +106,11 @@ def main():
     threshold = ski.filters.threshold_otsu(difference) # image, bins, histogram
     print('threshold is ', threshold)
     binary = difference >= threshold #  example from link below
-    print('binary is', binary)
-    unique, counts = np.unique(binary, return_counts=True)
-    print(f'Unique values in binary: {dict(zip(unique, counts))}')
-    boxes_prof(None, binary)
     plt.imshow(binary, cmap='binary')
     plt.axis('off')
     plt.show()
 #  https://scikit-image.org/docs/stable/api/skimage.filters.html#skimage.filters.threshold_otsu
     
-    objects = extract_objects_from_binary(binary)
-    print(objects, first_frame)
-    # Loop through each object and draw a bounding box
-    draw_boxes(objects,first_frame) 
 
 # remove artifacts connected to image border
     # Display the colored mask
@@ -149,5 +127,19 @@ def main():
 
     video_mask = np.array(threshold_list)
     show_video(video_mask, 'binary masks')
+    
+    prof_list= [] 
+    for filename in sorted(os.listdir('frames/')):
+        current_frame = imageio.v2.imread(f'frames/{filename}')
+        gray_image = ski.color.rgb2gray(current_frame)
+        difference = np.abs(gray_image - background_frame)
+        threshold = ski.filters.threshold_otsu(difference)
+        binary = difference >= threshold
+        frame = draw_bounding_boxes(current_frame, binary)
+        prof_list.append(frame)
+
+    prof_mask = np.array(prof_list)
+    show_video(prof_mask, 'Using Professor Func to Draw Boxes')
+
 if __name__ == "__main__":
     main()

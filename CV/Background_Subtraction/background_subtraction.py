@@ -29,21 +29,6 @@ def draw_bounding_boxes(image,fg):
             shape=image.shape)
         image[rr,cc] = 1
     return image
-def draw_boxes(objects, first_frame):
-    for obj in objects:
-        # Extract the bounding box
-        minr, minc, maxr, maxc = obj['bbox']
-
-        first_frame[minr:minr+2, minc:maxc] = [0, 255, 0]  # Red top edge
-        first_frame[maxr-2:maxr, minc:maxc] = [0, 255, 0]  # Red bottom edge
-        
-        # Draw the left and right edges of the rectangle
-        first_frame[minr:maxr, minc:minc+2] = [0, 255, 0]  # Red left edge
-        first_frame[minr:maxr, maxc-2:maxc] = [0, 255, 0]  # Red right edgefirst_frame[minr:minr+2, minc:maxc] = [0,255,0]
-
-        # Create a Rectangle patch
-    return first_frame 
-
 
 def main():
     image_list = []
@@ -82,9 +67,7 @@ def main():
     plt.axis('off')
     plt.show()
 #  https://scikit-image.org/docs/stable/api/skimage.filters.html#skimage.filters.threshold_otsu
-    
-
-    
+        
     prof_list= [] 
     for filename in sorted(os.listdir('frames/')):
         current_frame = imageio.v2.imread(f'frames/{filename}')

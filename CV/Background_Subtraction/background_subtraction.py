@@ -9,29 +9,6 @@ import os
 import imageio
 from skimage.measure import label, regionprops
 from skimage.color import label2rgb
-def extract_objects_from_binary(binary):
-    # Label the connected regions in the binary image
-    labels = label(binary)
-
-    # Initialize an empty list to store each object
-    objects = []
-
-    # Loop through the detected regions and extract each one
-    for region in regionprops(labels):
-        if region.area >= 50:  # Only consider regions large enough (adjust as needed)
-            # Create a mask for the region
-            minr, minc, maxr, maxc = region.bbox
-            object_mask = np.zeros(binary.shape, dtype=bool)
-            object_mask[minr:maxr, minc:maxc] = (labels[minr:maxr, minc:maxc] == region.label)
-
-            # Append the object's mask to the list
-            objects.append({
-                'mask': object_mask,
-                'bbox': region.bbox  # Store the bounding box
-            })
-
-    return objects
-
 
 def show_video(images,title):
     plt.title(title)
@@ -66,6 +43,8 @@ def draw_boxes(objects, first_frame):
 
         # Create a Rectangle patch
     return first_frame 
+
+
 def main():
     image_list = []
     for filename in sorted(os.listdir('frames/')):

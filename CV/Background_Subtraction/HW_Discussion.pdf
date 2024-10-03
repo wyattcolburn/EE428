@@ -1,0 +1,9 @@
+1. When you compute the average image (background image), the cars have disappeared -- why?
+
+In the each frame the cars passing by are in different pixel positions. We can think of these as non-constant values, as the cars are not stationary. Therefore, when we average all the frames, we isolate the elements of the photo that typically are not moving. Objects that are moving very little for example a tree in the wind, will also be seen as constant. 
+
+
+2. How well does the technique work to separate the cars from the background? Where does it fail
+and why?
+
+It works really well. There are even cars in the opposite highway that are highlighted. If there are other objects that were moving, for example a person was walking on the side of the road, the program would also create a box based on them. The approach of seperating the cars from the background, seperates all motion, it is not specific to cars. Therefore, some confusion could be created depending on the input frame set. In this case, it seems okay because the position of the camera is solely focused on the highway. 

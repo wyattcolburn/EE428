@@ -1,3 +1,16 @@
+General Summary:
+
+First thing to do is to gather all the input frames, os.listdir did not return a ordered list so I had to use the built in sorted function. Thisput all the frames in the apprioate order. I appended each frame to "image_list" so I had one list that contained all the data. 
+
+I converted the image_list into a np array as it always you do preform operations to the entire frame without having to index each col and row. 
+
+I took the average of the video array to get the background image. This is explained further in discussion question 1. I show the background image, and the difference between the first_frame and the background. This is an example of what will happen to the rest of the frames for the output video. 
+
+I used otsu's method to find a threshold. I used the same threshold for all the input frames to avoid having to recalculate the threshold for every frame. 
+
+The output video was constructed by grabbing one frame at a time, converting to gray scale. Then finding the difference by subtracting the frame from the background frame. Then a binary kernel was created by using the threshold (from otsu's method). Then a function given by the professor was applied to draw boxes around the clusters of foreground. The frame was the appended to a output_list. After all the frames where appended to ouput_list it was converted to a np_array and then displayed. 
+
+
 1. When you compute the average image (background image), the cars have disappeared -- why?
 
 In the each frame the cars passing by are in different pixel positions. We can think of these as non-constant values, as the cars are not stationary. Therefore, when we average all the frames, we isolate the elements of the photo that typically are not moving. Objects that are moving very little for example a tree in the wind, will also be seen as constant. 

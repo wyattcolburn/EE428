@@ -2,8 +2,10 @@ import rawpy
 import argparse
 import numpy as np
 from scipy.ndimage import correlate
-
-
+import matplotlib 
+matplotlib.use('gtk3agg') # use this for my vim setup
+from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 # Parse command line arguments.
 # Usage:
 #    python hw1.py <DNG filename>
@@ -57,11 +59,24 @@ blue_array[1::2, 1::2] = image_array[1::2, 1::2]
 
 
 green_avg_array = correlate(image_array, green_kernel)
+red_avg_array = correlate(image_array, blue_red_kernel)
+blue_avg_array = correlate(image_array, blue_red_kernel)
 
 print(red_avg_array)
 
 green_output_array = green_array + green_avg_array
+red_output_array = red_array + red_avg_array
+blue_output_array = blue_array + blue_avg_array
 
+output_array = np.zeros((height, weight, 3), dtype = float) # 3 because need a spot for rgb
+print("output shape", output_array.shape)
+output_array[...,0] = red_output_array
+output_array[...,1] = green_output_array
+output_array[...,2] = blue_output_array
+
+plt.imshow(output_array)
+plt.axis('off')
+plt.show()
 
 # filename for JPEG output
 path_out  = args.path.split('.')[0] +'jpg'

@@ -51,9 +51,9 @@ blue_red_kernel = np.array([[.25, 0, .25],
                             [.25, 0, .25]])
 
 
-red_array[0::2,0::2]= raw_image[0::2, 0::2]
-green_array[1::2, 1::2] =  raw_image[1::2, 1::2]
-blue_array[1::2, 1::2] = raw_image[1::2, 1::2] 
+red_array[0::2,0::2]= image_array[0::2, 0::2]
+green_array[1::2, 1::2] =  image_array[1::2, 1::2]
+blue_array[1::2, 1::2] = image_array[1::2, 1::2] 
 
 
 green_avg_array = correlate(image_array, green_kernel)

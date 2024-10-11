@@ -33,6 +33,10 @@ GBGB
 RGRG
 GBGB
 """
+height, weight = image_array.shape
+red_array = np.zeros((height,weight), dtype = float)
+green_array = np.zeros((height,weight), dtype = float)
+blue_array = np.zeros((height,weight), dtype = float)
 
 green_kernel = np.array([[0, .25, 0], 
                         [.25, 0, 0],
@@ -44,9 +48,9 @@ blue_red_kernel = np.array([[.25, 0, .25],
                             [.25, 0, .25]])
 
 
-red_pixels = raw_image[0::2, 0::2]
-green_pixels =  raw_image[0::2, 1::2]
-blue_pixels =  
+red_array[0::2,0::2]= raw_image[0::2, 0::2]
+green_array[0::2, 1::2] =  raw_image[1::2, 1::2]
+blue_array[1::2, 1::2] = raw_image[1::2, 1::2] 
 
 
 

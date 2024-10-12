@@ -96,8 +96,46 @@ print(f"Green mean: {green_mean_2} Red_mean: {red_mean_2} Blue Mean: {blue_mean_
 green_output_array = np.power(green_output_array,  GAMMA)
 red_output_array = np.power(red_output_array, GAMMA)
 blue_output_array = np.power(blue_output_array, GAMMA)
+
+
+####################################
+
+# Kernels for interpolation
+green_kernel = np.array([[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]])
+red_kernel = np.array([[0.25, 0, 0.25], [0, 0, 0], [0.25, 0, 0.25]])
+horizontal_red_kernel = np.array([[0, 0.5, 0], [0, 0, 0], [0, 0.5, 0]])
+vertical_red_kernel = np.array([[0, 0, 0], [0.5, 0, 0.5], [0, 0, 0]])
+
+# Blue kernels for interpolation
+horizontal_blue_kernel = np.array([[0, 0.5, 0], [0, 0, 0], [0, 0.5, 0]])
+vertical_blue_kernel = np.array([[0, 0, 0], [0.5, 0, 0.5], [0, 0, 0]])
+
+# For Blue interpolation at Red pixels
+blue_at_red_kernel = np.array([[0.25, 0, 0.25], [0, 0, 0], [0.25, 0, 0.25]])
+
+# Apply convolution to interpolate missing pixels
+# Green at red and blue locations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print(f"Red channel shape: {red_output_array.shape}, max: {np.max(red_output_array)}, min: {np.min(red_output_array)}")
-print(f"Green channel shape: {green_output_array.shape}, max: {np.max(green_output_array)}, min: {np.min(green_output_array)}")
+print(f"Green channel shape: {green_array.shape}, max: {np.max(green_output_array)}, min: {np.min(green_output_array)}")
 print(f"Blue channel shape: {blue_output_array.shape}, max: {np.max(blue_output_array)}, min: {np.min(blue_output_array)}")
 plt.figure()
 plt.imshow(red_output_array, cmap='gray')
@@ -127,7 +165,7 @@ output_array = np.clip(output_array, 0, 1)
 output_array = output_array * 255
 
 output_array_final = output_array.astype(np.uint8)
-print("output array", output_array)
+print("output array", output_array_final)
 plt.imshow(output_array_final)
 plt.axis('off')
 plt.show()

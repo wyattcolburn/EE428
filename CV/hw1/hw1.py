@@ -1,5 +1,6 @@
 import rawpy
 import argparse
+import imageio
 import numpy as np
 from scipy.ndimage import correlate
 import matplotlib 
@@ -13,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('path')
 args = parser.parse_args()
 
+GAMMA = .55
 
 # read 16-bit integer data from RAW file into raw_image array
 
@@ -68,15 +70,65 @@ green_output_array = green_array + green_avg_array
 red_output_array = red_array + red_avg_array
 blue_output_array = blue_array + blue_avg_array
 
+green_mean = np.mean(green_output_array)
+red_mean = np.mean(red_output_array)
+blue_mean = np.mean(blue_output_array)
+
+green_scaling = .25 / green_mean
+red_scaling = .25 / red_mean 
+blue_scaling = .25 / blue_mean 
+
+green_output_array = green_output_array * green_scaling
+red_output_array = red_output_array * red_scaling
+blue_output_array = blue_output_array * blue_scaling 
+
+print(f"Green mean: {green_mean} Red_mean: {red_mean} Blue Mean: {blue_mean}")
+
+green_mean_2 = np.mean(green_output_array)
+red_mean_2 = np.mean(red_output_array)
+blue_mean_2 = np.mean(blue_output_array)
+print(f"Green mean: {green_mean_2} Red_mean: {red_mean_2} Blue Mean: {blue_mean_2}")
+
+green_output_array = np.power(green_output_array,  GAMMA)
+red_output_array = np.power(red_output_array, GAMMA)
+blue_output_array = np.power(blue_output_array, GAMMA)
+print(f"Red channel shape: {red_output_array.shape}, max: {np.max(red_output_array)}, min: {np.min(red_output_array)}")
+print(f"Green channel shape: {green_output_array.shape}, max: {np.max(green_output_array)}, min: {np.min(green_output_array)}")
+print(f"Blue channel shape: {blue_output_array.shape}, max: {np.max(blue_output_array)}, min: {np.min(blue_output_array)}")
+plt.figure()
+plt.imshow(red_output_array, cmap='gray')
+plt.title("Red Channel")
+plt.axis('off')
+plt.show()
+
+plt.figure()
+plt.imshow(green_output_array, cmap='gray')
+plt.title("Green Channel")
+plt.axis('off')
+plt.show()
+
+plt.figure()
+plt.imshow(blue_output_array, cmap='gray')
+plt.title("Blue Channel")
+plt.axis('off')
+plt.show()
+
 output_array = np.zeros((height, weight, 3), dtype = float) # 3 because need a spot for rgb
 print("output shape", output_array.shape)
 output_array[...,0] = red_output_array
 output_array[...,1] = green_output_array
 output_array[...,2] = blue_output_array
+output_array = np.clip(output_array, 0, 1)
 
-plt.imshow(output_array)
+output_array = output_array * 255
+
+output_array_final = output_array.astype(np.uint8)
+print("output array", output_array)
+plt.imshow(output_array_final)
 plt.axis('off')
 plt.show()
 
 # filename for JPEG output
-path_out  = args.path.split('.')[0] +'jpg'
+path_out  = args.path.split('.')[0] +'processed.jpg'
+
+imageio.imwrite(path_out, output_array_final)

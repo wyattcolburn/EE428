@@ -40,6 +40,7 @@ GBGB
 height, weight = image_array.shape
 red_array = np.zeros((height,weight), dtype = float)
 green_array = np.zeros((height,weight), dtype = float)
+green_nearby_array = np.zeros((height,weight), dtype = float)
 blue_array = np.zeros((height,weight), dtype = float)
 red_avg_array = np.zeros((height,weight), dtype = float)
 green_avg_array = np.zeros((height,weight), dtype = float)
@@ -60,12 +61,15 @@ red_data_for_green_vertical = np.array([[0,0,0], [.5,0,.5],[0,0,0]])
 
 
 red_array[0::2,0::2]= image_array[0::2, 0::2]
-green_array[1::2, 1::2] =  image_array[1::2, 1::2]
+green_array[0::2, 1::2] =  image_array[0::2, 1::2]
+green_array[1::2, 0::2] = image_array[1::2, 0::2]
 blue_array[1::2, 1::2] = image_array[1::2, 1::2] 
 
+green_nearby_array = (correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)) / 2
 
-green_avg_array = correlate(image_array, green_kernel)
-red_avg_array = correlate(image_array, blue_red_kernel)
+print("nearby data", green_nearby_array)
+green_avg_array = correlate(image_array, green_kernel) + green_nearby_array
+red_avg_array = correlate(image_array, blue_red_kernel) + correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)
 blue_avg_array = correlate(image_array, blue_red_kernel)
 
 print(red_avg_array)
@@ -92,45 +96,11 @@ green_mean_2 = np.mean(green_output_array)
 red_mean_2 = np.mean(red_output_array)
 blue_mean_2 = np.mean(blue_output_array)
 print(f"Green mean: {green_mean_2} Red_mean: {red_mean_2} Blue Mean: {blue_mean_2}")
-
-green_output_array = np.power(green_output_array,  GAMMA)
+"""
+green_output_array = np.power(green_output_array,GAMMA)
 red_output_array = np.power(red_output_array, GAMMA)
 blue_output_array = np.power(blue_output_array, GAMMA)
-
-
-####################################
-
-# Kernels for interpolation
-green_kernel = np.array([[0, 0.25, 0], [0.25, 0, 0.25], [0, 0.25, 0]])
-red_kernel = np.array([[0.25, 0, 0.25], [0, 0, 0], [0.25, 0, 0.25]])
-horizontal_red_kernel = np.array([[0, 0.5, 0], [0, 0, 0], [0, 0.5, 0]])
-vertical_red_kernel = np.array([[0, 0, 0], [0.5, 0, 0.5], [0, 0, 0]])
-
-# Blue kernels for interpolation
-horizontal_blue_kernel = np.array([[0, 0.5, 0], [0, 0, 0], [0, 0.5, 0]])
-vertical_blue_kernel = np.array([[0, 0, 0], [0.5, 0, 0.5], [0, 0, 0]])
-
-# For Blue interpolation at Red pixels
-blue_at_red_kernel = np.array([[0.25, 0, 0.25], [0, 0, 0], [0.25, 0, 0.25]])
-
-# Apply convolution to interpolate missing pixels
-# Green at red and blue locations
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
 
 
 
@@ -138,19 +108,19 @@ print(f"Red channel shape: {red_output_array.shape}, max: {np.max(red_output_arr
 print(f"Green channel shape: {green_array.shape}, max: {np.max(green_output_array)}, min: {np.min(green_output_array)}")
 print(f"Blue channel shape: {blue_output_array.shape}, max: {np.max(blue_output_array)}, min: {np.min(blue_output_array)}")
 plt.figure()
-plt.imshow(red_output_array, cmap='gray')
+plt.imshow(red_output_array)
 plt.title("Red Channel")
 plt.axis('off')
 plt.show()
 
 plt.figure()
-plt.imshow(green_output_array, cmap='gray')
+plt.imshow(green_output_array)
 plt.title("Green Channel")
 plt.axis('off')
 plt.show()
 
 plt.figure()
-plt.imshow(blue_output_array, cmap='gray')
+plt.imshow(blue_output_array)
 plt.title("Blue Channel")
 plt.axis('off')
 plt.show()

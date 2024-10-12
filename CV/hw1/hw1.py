@@ -46,13 +46,17 @@ green_avg_array = np.zeros((height,weight), dtype = float)
 blue_avg_array = np.zeros((height,weight), dtype = float)
 
 green_kernel = np.array([[0, .25, 0], 
-                        [.25, 0, 0],
+                        [.25, 0, .25],
                         [0,.25,0]])
 
 
 blue_red_kernel = np.array([[.25, 0, .25], 
                              [0,0,0], 
                             [.25, 0, .25]])
+
+red_data_for_green_horinztonal = np.array([[0, .5, 0], [0,0,0],[0,.5,0]])
+
+red_data_for_green_vertical = np.array([[0,0,0], [.5,0,.5],[0,0,0]])
 
 
 red_array[0::2,0::2]= image_array[0::2, 0::2]

@@ -50,18 +50,13 @@ def main():
     green_avg_array = np.zeros((height,weight), dtype = float)
     blue_avg_array = np.zeros((height,weight), dtype = float)
 
-    green_kernel = np.array([[0, .25, 0], 
-                            [.25, 0, .25],
-                            [0,.25,0]])
+    green_kernel = np.array([[1, .5],[.5,0]]) 
 
 
-    blue_red_kernel = np.array([[.25, 0, .25], 
-                                 [0,0,0], 
-                                [.25, 0, .25]])
+    blue_red_kernel = np.array([[.25, .5, .25], 
+                                 [.5,1, .5], 
+                                [.25, .5, .25]])
 
-    red_data_for_green_horinztonal = np.array([[0, .5, 0], [0,0,0],[0,.5,0]])
-
-    red_data_for_green_vertical = np.array([[0,0,0], [.5,0,.5],[0,0,0]])
 
 
     red_array[0::2,0::2]= image_array[0::2, 0::2]
@@ -70,39 +65,18 @@ def main():
     blue_array[1::2, 1::2] = image_array[1::2, 1::2] 
 
     # Absolute no idea what I am doing with the averaging was trying to get the colors better
-    green_nearby_array = (correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)) / 2
+    green_array = correlate(green_array, green_kernel)
+    blue_array= correlate(blue_array, blue_red_kernel)
+    red_array = correlate(red_array, blue_red_kernel)
 
-    green_avg_array = correlate(image_array, green_kernel) + green_nearby_array
-    red_avg_array = correlate(image_array, blue_red_kernel) + correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)
-    blue_avg_array = correlate(image_array, blue_red_kernel) + correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)
+    output_array = np.stack((red_array, green_array,  blue_array), axis =2)
 
-    print(red_avg_array)
+    output_array[...,0] = (.25 / np.mean(output_array[...,0])) * output_array[...,0]
+    output_array[...,1] = (.25 / np.mean(output_array[...,1])) * output_array[...,1]
+    output_array[...,2] = (.25 / np.mean(output_array[...,2])) * output_array[...,2]
 
-    green_output_array = green_array + green_avg_array
-    red_output_array = red_array + red_avg_array
-    blue_output_array = blue_array + blue_avg_array
+    output_array = output_array** GAMMA
 
-    green_mean = np.mean(green_output_array)
-    red_mean = np.mean(red_output_array)
-    blue_mean = np.mean(blue_output_array)
-
-    green_scaling = .25 / green_mean
-    red_scaling = .25 / red_mean 
-    blue_scaling = .25 / blue_mean 
-
-    green_output_array = green_output_array * green_scaling
-    red_output_array = red_output_array * red_scaling
-    blue_output_array = blue_output_array * blue_scaling 
-
-    green_output_array = np.power(green_output_array,GAMMA)
-    red_output_array = np.power(red_output_array, GAMMA)
-    blue_output_array = np.power(blue_output_array, GAMMA)
-
-    output_array = np.zeros((height, weight, 3), dtype = float) # 3 because need a spot for rgb
-    print("output shape", output_array.shape)
-    output_array[...,0] = red_output_array
-    output_array[...,1] = green_output_array
-    output_array[...,2] = blue_output_array
     output_array = np.clip(output_array, 0, 1)
 
     output_array = output_array * 255

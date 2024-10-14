@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use('gtk3agg') # use this for my vim setup
 from matplotlib import pyplot as plt
 import matplotlib.pyplot as plt
+
+
 # Parse command line arguments.
 # Usage:
 #    python hw1.py <DNG filename>
@@ -18,7 +20,7 @@ def main():
 
     GAMMA = .55
 
-# read 16-bit integer data from RAW file into raw_image array
+    # read 16-bit integer data from RAW file into raw_image array
 
     with rawpy.imread(args.path) as raw:
         raw_image = raw.raw_image.copy()
@@ -67,14 +69,9 @@ def main():
     green_array[1::2, 0::2] = image_array[1::2, 0::2]
     blue_array[1::2, 1::2] = image_array[1::2, 1::2] 
 
-
-
-
-
-
+    # Absolute no idea what I am doing with the averaging was trying to get the colors better
     green_nearby_array = (correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)) / 2
 
-    print("nearby data", green_nearby_array)
     green_avg_array = correlate(image_array, green_kernel) + green_nearby_array
     red_avg_array = correlate(image_array, blue_red_kernel) + correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)
     blue_avg_array = correlate(image_array, blue_red_kernel) + correlate(image_array, red_data_for_green_horinztonal) + correlate(image_array, red_data_for_green_vertical)
@@ -101,26 +98,6 @@ def main():
     red_output_array = np.power(red_output_array, GAMMA)
     blue_output_array = np.power(blue_output_array, GAMMA)
 
-
-
-    plt.figure()
-    plt.imshow(red_output_array)
-    plt.title("Red Channel")
-    plt.axis('off')
-    plt.show()
-
-    plt.figure()
-    plt.imshow(green_output_array)
-    plt.title("Green Channel")
-    plt.axis('off')
-    plt.show()
-
-    plt.figure()
-    plt.imshow(blue_output_array)
-    plt.title("Blue Channel")
-    plt.axis('off')
-    plt.show()
-
     output_array = np.zeros((height, weight, 3), dtype = float) # 3 because need a spot for rgb
     print("output shape", output_array.shape)
     output_array[...,0] = red_output_array
@@ -131,7 +108,7 @@ def main():
     output_array = output_array * 255
 
     output_array_final = output_array.astype(np.uint8)
-    print("output array", output_array_final)
+    
     plt.imshow(output_array_final)
     plt.axis('off')
     plt.show()

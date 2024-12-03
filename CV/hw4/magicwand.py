@@ -104,8 +104,10 @@ class MagicWand:
             Returns:    
                 (x,y) 2D location of projection in image
         """
-        # WRITE CODE HERE
-        pass
+        x = (self.focal * X / Z) + self.centerx
+        y = (self.focal * Y / Z) + self.centery
+
+        return x,y
 
     def draw_line_2d(self,x1,y1,x2,y2):
         """ Draw a 2D line
@@ -121,8 +123,9 @@ class MagicWand:
                 X1,Y1,Z1: 3D position of first line endpoint
                 X2,Y2,Z2: 3D position of second line endpoint
         """
-        # WRITE CODE HERE
-        pass
+        x1,y1 = self.project(X1, Y1, Z1)
+        x2, y2 = self.project(X2,Y2,Z2)
+        self.draw_line_2d(x1,y1,x2,y2)
 
     def draw_bounding_cube(self,X,Y,Z):
         """ Draw bounding cube around 3D point, with radius R
@@ -173,8 +176,8 @@ class MagicWand:
             x, y, r = circle
             X,Y,Z = self.calculate_ball_position(x,y,r)
             self.draw_ball(x,y,r,Z,image)
-            #self.draw_bounding_cube(X,Y,Z)
-            #self.ax_points.plot(X,Y,Z,'r.')
+            self.draw_bounding_cube(X,Y,Z)
+            self.ax_points.plot(X,Y,Z,'r.')
         plt.pause(0.01)
         self.ax_image.cla()
 

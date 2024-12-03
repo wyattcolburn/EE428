@@ -1,6 +1,14 @@
-from matplotlib import pyplot as plt
-import skimage
+import skimage as ski
+from skimage import color, filters, feature
+from skimage.feature import canny
+from skimage.transform import hough_circle, hough_circle_peaks
+from skimage.draw import circle_perimeter
 import numpy as np
+import imageio
+import matplotlib 
+matplotlib.use('gtk3agg') # use this for my vim setup
+from matplotlib import pyplot as plt
+
 
 class MagicWand:
     def __init__(self,calibration_path,R):
@@ -30,17 +38,38 @@ class MagicWand:
                 Edge map [H,W]
         """
         # WRITE CODE HERE
-        pass
-    
-    def detect_circles(self,edges):
+        gray_image = ski.color.rgb2gray(image) #this turns each pixel into a float 0-1
+        edges = canny(gray_image) 
+        return edges 
+
+    def detect_circles(self, edges, image):
         """ Detect circles in edge map.
             Arguments:
                 image: edge map [H,W]
             Returns:
                 List of tuples (x, y, radius)
+        """       
+        # Define range of radii to detect
+        hough_radii = np.arange(40, 55, 2)
+        
+        # Perform Hough Circle Transform
+        hough_res = hough_circle(edges, hough_radii)
+        
+        # Find the most prominent circle
+        accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii, total_num_peaks=1)
+        """ 
+        # Plot detected circles
+        for center_y, center_x, radius in zip(cy, cx, radii):
+            circy, circx = circle_perimeter(center_y, center_x, radius, shape=image.shape)
+            image[circy, circx] = (220, 20, 20)  # Highlight detected circle in red
+        
+        # Display the result
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.imshow(image)
+        ax.axis('off')  # Hide axes for clarity
+        plt.show()
         """
-        # WRITE CODE HERE
-        pass
+        return list(zip(cx, cy, radii))
 
     def calculate_ball_position(self,x,y,r):
         """ Calculate ball's (X,Y,Z) position in world coordinates
@@ -51,13 +80,19 @@ class MagicWand:
                 X,Y,Z position of ball in world coordinates
         """
         # WRITE CODE HERE
+        Z = (self.focal * self.R) / r
+        X = ((x - self.centerx) * Z) / self.focal
+        Y = ((y - self.centery) * Z) / self.focal
 
-    def draw_ball(self,x,y,r,Z):
+        return X,Y,Z
+
+    def draw_ball(self,x,y,r,Z,image):
         """ Draw circle on ball and write depth estimate in center
             Arguments:
                 x,y,r: 2D position and radius of ball
                 Z: estimated depth of ball
         """
+        self.ax_image.imshow(image)  # Show the image in the axes (e.g., your frame)
         circle = plt.Circle((x,y),r,fill=False)
         self.ax_image.add_patch(circle)
         self.ax_image.text(x,y,f'{int(Z)} cm')
@@ -133,15 +168,16 @@ class MagicWand:
         self.ax_edges.imshow(edges)
         self.ax_edges.set_ylim(image.shape[0],0)
         self.ax_edges.set_xlim(0,image.shape[1])
-        circles = self.detect_circles(edges)
+        circles = self.detect_circles(edges, image)
         for circle in circles:
             x, y, r = circle
             X,Y,Z = self.calculate_ball_position(x,y,r)
-            self.draw_ball(x,y,r,Z)
-            self.draw_bounding_cube(X,Y,Z)
-            self.ax_points.plot(X,Y,Z,'r.')
+            self.draw_ball(x,y,r,Z,image)
+            #self.draw_bounding_cube(X,Y,Z)
+            #self.ax_points.plot(X,Y,Z,'r.')
         plt.pause(0.01)
         self.ax_image.cla()
+
 
 if __name__ == '__main__':
     import imageio.v3 as iio
@@ -155,6 +191,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     wand = MagicWand(calibration_path=args.calibration,R=args.ball_radius)
-
     for frame in iio.imiter(args.video):
         wand.process_frame(frame)

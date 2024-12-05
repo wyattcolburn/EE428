@@ -49,26 +49,11 @@ class MagicWand:
             Returns:
                 List of tuples (x, y, radius)
         """       
-        # Define range of radii to detect
-        hough_radii = np.arange(40, 55, 2)
+        hough_radii = np.arange(30, 45, 2)
         
-        # Perform Hough Circle Transform
         hough_res = hough_circle(edges, hough_radii)
         
-        # Find the most prominent circle
-        accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii, total_num_peaks=1)
-        """ 
-        # Plot detected circles
-        for center_y, center_x, radius in zip(cy, cx, radii):
-            circy, circx = circle_perimeter(center_y, center_x, radius, shape=image.shape)
-            image[circy, circx] = (220, 20, 20)  # Highlight detected circle in red
-        
-        # Display the result
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.imshow(image)
-        ax.axis('off')  # Hide axes for clarity
-        plt.show()
-        """
+        accums, cx, cy, radii = hough_circle_peaks(hough_res, hough_radii, total_num_peaks=3)
         return list(zip(cx, cy, radii))
 
     def calculate_ball_position(self,x,y,r):
@@ -79,7 +64,6 @@ class MagicWand:
             Returns:
                 X,Y,Z position of ball in world coordinates
         """
-        # WRITE CODE HERE
         Z = (self.focal * self.R) / r
         X = ((x - self.centerx) * Z) / self.focal
         Y = ((y - self.centery) * Z) / self.focal
@@ -92,7 +76,7 @@ class MagicWand:
                 x,y,r: 2D position and radius of ball
                 Z: estimated depth of ball
         """
-        self.ax_image.imshow(image)  # Show the image in the axes (e.g., your frame)
+        self.ax_image.imshow(image)  
         circle = plt.Circle((x,y),r,fill=False)
         self.ax_image.add_patch(circle)
         self.ax_image.text(x,y,f'{int(Z)} cm')
